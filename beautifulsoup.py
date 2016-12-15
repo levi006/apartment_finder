@@ -1,24 +1,29 @@
 import requests
+import pandas as pd
 from bs4 import BeautifulSoup
 
-url_base = 'http://sfbay.craigslist.org/search/eby/apa'
-params = dict(bedrooms=1, is_furnished=1)
+url_base = 'http://sfbay.craigslist.org/search/sfc/apa'
+params = dict(query='studio', max_price=2000, availabilityMode=0)
 rsp = requests.get(url_base, params=params)
 # print(rsp.url)
 # print(rsp.text[:500])
 
-
-# import urllib
-# r = urllib.urlopen('https://sfbay.craigslist.org/search/sfc/apa?query=studio&max_price=2000&availabilityMode=0').read()
 soup = BeautifulSoup(rsp.text, 'html.parser')
 # print type(soup)
 
-# print soup.prettify()[0:1000000000]
+apts = soup.find_all('li', attrs={'class': 'result-row'})
+# print(len(apts))
 
-# apts = soup.find_all('p', attrs={'a class': 'result-title hdrlnk'})
+this_apt = apts[5]
+# print "**************"
+# print(this_apt.prettify())
+# print "**************"
 
-apts = soup.find_all('p', attrs={'class': 'row'})
-print(len(apts))
 
-# this_appt = apts[15]
-# print(this_appt.prettify())
+this_time = this_apt.find('time')['datetime']
+this_time = pd.to_datetime(this_time)
+title = this_apt.find('a', attrs={'class': 'hdrlnk'}).text
+# price = this_apt.findAll('span', attrs={'class': 'result-price'})
+this_price = this_apt.find('span', {'class': 'result-price'}).text
+# print type(this_price)
+print(title, this_price)
